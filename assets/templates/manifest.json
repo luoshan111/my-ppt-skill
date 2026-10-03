@@ -1,0 +1,60 @@
+{
+  "_说明": "可克隆模板清单（模式 B）。本地副本在 templates/ 目录下（约 80MB），与 G 盘原件相同；G 盘离线时使用 local 路径。",
+  "templates": {
+    "shuobo": {
+      "name": "硕博答辩通用-蓝色2",
+      "g_path": "G:\\ppt\\封面答辩ppt\\硕博答辩通用PPT-蓝色2.pptx",
+      "local": "assets/templates/shuobo.pptx",
+      "pages": 27,
+      "风格": "defense 答辩（浙大蓝白）",
+      "结构": "封面/目录/PART分节×4/X.Y内容页(含表格)/结尾",
+      "特点": "顶部章节标签导航、X.Y编号、浅蓝芯片+虚线卡、底部渐变双带；含表格页",
+      "字体": "OPPOSans 嵌入子集 —— 换字多时建议 clone_deck.py --strip-fonts"
+    },
+    "kaiti": {
+      "name": "研究生开题答辩（医学）",
+      "g_path": "G:\\ppt\\封面答辩ppt\\6 研究生开题答辩（医学）(1)(3).pptx",
+      "local": "assets/templates/kaiti.pptx",
+      "pages": 18,
+      "风格": "defense 答辩（开题报告）",
+      "结构": "封面/目录/01-05章节内容页/致谢",
+      "特点": "版面由导出图片+独立文本框构成，可克隆换字"
+    },
+    "yiliao": {
+      "name": "蓝白色医疗器械（商务风）",
+      "g_path": "G:\\ppt\\3-3国赛金奖PPT模板系列\\0蓝白医学风科技\\蓝白色医疗器械.pptx",
+      "local": "assets/templates/yiliao.pptx",
+      "pages": 22,
+      "风格": "business 蓝白商务/竞赛",
+      "结构": "深蓝照片封面/目录/五章节内容页（页眉导航胶囊+底部波浪）",
+      "特点": "主色0E419C+金黄FFC000点缀；字体为 Arial+主题字体（无嵌入子集，换字安全）"
+    },
+    "jiagou": {
+      "name": "课题申报结题架构图004",
+      "g_path": "G:\\ppt\\280款流程架构图\\1.课题申报教学比赛结题架构图12图\\课题申报 结题报告 精选课题架构图\\【A028】课题申报 结题报告 精选课题架构图004.pptx",
+      "local": "assets/templates/jiagou.pptx",
+      "pages": 15,
+      "风格": "diagram 架构图集（多色粉彩）",
+      "结构": "12 种独立图解页（框架/环形/双循环/对称列）",
+      "特点": "整页图解，适合单页克隆后改文字作为特定框架图"
+    },
+    "cailiao": {
+      "name": "材料研究方法（新工科架构图12页）",
+      "g_path": "G:\\ppt\\280款流程架构图\\2.12页新工科课题申报结题 报告架构图\\材料研究方法.pptx",
+      "local": "assets/templates/cailiao.pptx",
+      "pages": 12,
+      "风格": "diagram 架构图集（珊瑚红+钢蓝）",
+      "结构": "12 种同一主题的替代图解布局",
+      "特点": "pageHeader页框+花瓣/圆柱链/波浪飘带；思源黑体嵌入子集（换字注意 --strip-fonts）"
+    },
+    "jxjiang": {
+      "name": "国家奖学金答辩（竞选风）",
+      "g_path": "G:\\ppt\\-8 答辩+竞选PPT模板\\2-5国家奖学金竞选PPT\\蓝色-道阻且长 行则将至  2\\国家奖学金答辩ppt.pptx",
+      "local": "assets/templates/jxjiang.pptx",
+      "pages": 24,
+      "风格": "campaign 竞选/个人答辩（宝蓝+金）",
+      "结构": "照片封面/金句页/目录/01-05分节/事迹页(大数字/荣誉/证书/实践)/金句收尾",
+      "特点": "人物照片封面、MiSans字体、底弧签名；个人事迹叙事结构"
+    }
+  }
+}
