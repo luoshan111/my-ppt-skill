@@ -11,6 +11,18 @@
 | 自由度 | 任意新内容 / 新构图 / 页数 | 受限于模板已有版式 |
 | 适用 | 新课题、新结构 | 同类汇报换内容 |
 
+## 效果预览
+
+以下页面全部由组件库代码生成（模式 A 重画，未使用任何模板文件），可直接编辑：
+
+<p float="left">
+  <img src="assets/screenshots/screenshot-2.1-四大支柱.png" width="32%" />
+  <img src="assets/screenshots/screenshot-2.2-数据层.png" width="32%" />
+  <img src="assets/screenshots/screenshot-2.3-模型层.png" width="32%" />
+</p>
+
+*左：中心辐射图（hub-spokes）· 中：徽章矩阵（badge-grid）· 右：chevron 流程链 —— 均为原生形状绘制，PowerPoint 内可逐元素编辑*
+
 ## 技能包内含
 
 - **55+ 参数化组件**（`scripts/scaffold.js`）：答辩风内容页、图解页（矩阵/流程链/环形体系/双循环）、图解集整页（花瓣中心/圆柱链/波浪飘带）、竞选叙事页（照片封面/扇形目录/证书展台）、商务汇报页
