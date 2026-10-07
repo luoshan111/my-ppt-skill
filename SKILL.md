@@ -34,6 +34,7 @@ description: 用户的个人 PPT 风格——蓝白学术风（研究生开题/�
    竞选/个人答辩风（参考 jxjiang-*.png）：`arcFooter + navBarText + photoCover + tocFan + sectionGradient + bigStat + photoGrid + honorList + certPodium + spreadTags + kvProfileCard + laurelBadge`，配色用 `S.DIA` 的 royal/peri/sun 族与 `S.JX`
    竞赛路演风（参考 fuwai-*.png）：框架 `contestHeader + logoCorner + bgContest + pageLead + coverContest + closingContest`；块件 `sectionPill + checkPills + dashCallout + bottomBanner + bulbCallout + footPills`；卡片 `painCard + numCard + tealHeadCard + personaCard + innovCard + capBox + gradPanel + dashColumn + infoCard + tagPills/tagRow/metricPills/flowTag/softBox`；图解 `triColHeaders + hubRadial + archBanner + shotStrip + stepBox + captionShot + sideLabel`；数据 `bigGold + formulaLine + formulaCard`；团队 `teamIntro + memberCard + flowBand`；配色用 `S.CON`，字体用 `S.CF`，渐变只走 `gradRect/gradPill`
    配图生成族（同参考件的插图逻辑）：`glyph` 图标字形 28 种（`GLYPHS` 清单，line/fill 双模式）+ 图解件 `elbow/forkArrow/miniTable/badgeCheck/vText/gradRectMS` + 演示件 `iconBarChart/eraLineChart/demoScatter/demoPartition/iTreeDraw/sqlBlock/chatBubble/comparePair/cycleFlow`——示意图/流程图/迷你表/结构图一律现场绘制，截图/照片/论文/热力图才用 `imgPlaceholder`；构图骨架见 style-guide「配图生成族」节
+   紧凑撑满机制：布局尺寸一律用 `S.CLT` tokens（页边距/卡距/卡头高/字号），整页排布先 `gridAreas` 分格、栏内 `fillStack` 堆卡（卡高随区域算，底部不留白）；验收加 `check.py out.pptx --min-units 8`
 4. **构建三连**（顺序固定，缺一不可；`$SKILL` = 本技能目录）：
    ```bash
    NODE_PATH="$(npm root -g)" node build.js

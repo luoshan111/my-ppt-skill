@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-"""程序化 QA：文本溢出估计 + 越界 + 文本框重叠。用法：
-    python check.py "输出文件.pptx"
+"""程序化 QA：文本溢出估计 + 越界 + 文本框重叠 + 信息密度。用法：
+    python check.py "输出文件.pptx" [--min-units 8]
+  --min-units N：每页信息单元（含字形的形状+文本框）少于 N 时报 [密度] 警告（内容页建议 8，竞赛图解页 15-30）
 """
 import math, sys
 from pptx import Presentation
 
-PATH = sys.argv[1] if len(sys.argv) > 1 else "out.pptx"
+args = [a for a in sys.argv[1:] if not a.startswith("--")]
+MIN_UNITS = int(sys.argv[sys.argv.index("--min-units") + 1]) if "--min-units" in sys.argv else 0
+PATH = args[0] if args else "out.pptx"
 EMU_IN = 914400.0
 
 def char_w(ch, pt):
@@ -47,4 +50,14 @@ for si, slide in enumerate(prs.slides, 1):
             if ix * iy > 0.05:
                 issues.append(f"[重叠] slide{si} '{a[4][:10]}' x '{b[4][:10]}'")
 print(f"slides={len(prs.slides._sldIdLst)}")
+if MIN_UNITS:
+    # 信息单元 = 有字的文本框 + 图片 + 表格/图表 + 组合；纯装饰色块（渐变切片/底带）不计
+    for si, slide in enumerate(prs.slides, 1):
+        units = 0
+        for sh in slide.shapes:
+            if sh.shape_type is not None and str(sh.shape_type).startswith("GROUP"): units += 1
+            elif sh.has_text_frame and sh.text_frame.text.strip(): units += 1
+            elif sh.shape_type is not None and ("PICTURE" in str(sh.shape_type) or "TABLE" in str(sh.shape_type) or "CHART" in str(sh.shape_type)): units += 1
+        if units < MIN_UNITS:
+            issues.append(f"[密度] slide{si} 仅 {units} 个信息单元（要求 ≥{MIN_UNITS}）——内容页应紧凑丰富，用 fillStack/gridAreas 撑满区域")
 print("\n".join(issues) if issues else "NO ISSUES")

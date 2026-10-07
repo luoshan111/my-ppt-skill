@@ -864,6 +864,37 @@ const CF = {
   kai: "华文楷体",          // 楷体引言（团队介绍/斜体标签）
   ft: "Times New Roman",    // 公式/Step 编号
 };
+// 布局 tokens（提取自 fuwai 参考件的紧凑排版参数）：卡片族组件一律引用，禁止再手写随意 inset/间距
+const CLT = {
+  MX: 0.45,        // 页左右边距（内容区 0.45 ~ 12.88）
+  TOP: 0.95,       // 页眉下方内容区起始 y
+  GAP: 0.2,        // 卡片间距（列/行同值）
+  INSET: 0.15,     // 卡内容边距（图/文与卡边）
+  HINSET: 0.12,    // 卡头色带与卡边距
+  HEAD: 0.42,      // 卡头/头条标准高
+  R: 0.06,         // 卡片圆角
+  T: 15,           // 卡片标题字号
+  B: 11,           // 卡片正文字号
+  LH: 1.22,        // 正文行距
+};
+// 垂直自动撑满：等分区域高度排布 items（fn(area,i) 或 {draw:fn}），消灭底部留白——紧凑排版的机制化
+function fillStack(s, o) {
+  const items = o.items ?? [], n = Math.max(items.length, 1), gap = o.gap ?? CLT.GAP;
+  const ih = (o.h - (n - 1) * gap) / n;
+  items.forEach((it, i) => {
+    const area = { x: o.x, y: o.y + i * (ih + gap), w: o.w, h: ih };
+    (typeof it === "function" ? it : it.draw)(area, i);
+  });
+  return o.y + o.h;
+}
+// 区域网格切分：{x,y,w,h,cols,rows,gap} → areas[]（行优先）。组件只管往格子里画，间距/尺寸交给网格
+function gridAreas(o) {
+  const cols = o.cols ?? 1, rows = o.rows ?? 1, gap = o.gap ?? CLT.GAP;
+  const cw = (o.w - (cols - 1) * gap) / cols, ch = (o.h - (rows - 1) * gap) / rows, out = [];
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++)
+    out.push({ x: o.x + c * (cw + gap), y: o.y + r * (ch + gap), w: cw, h: ch });
+  return out;
+}
 // 文本估宽（英寸）： contestHeader 排 chevron、tagRow 自适应用
 function measure(str, fs) {
   let w = 0;
@@ -994,45 +1025,45 @@ function tagPills(s, o = {}) {
 // 痛点/特性四联卡之一：白卡 + 渐变藏青圆角卡头 + 图位 + 标签行 + rich 正文
 function painCard(s, o = {}) {
   const { x, y, w, h } = o;
-  card(s, x, y, w, h, { fill: T.WHITE, line: T.LINE, lw: 0.75, r: 0.05 });
-  const hh = o.hh ?? 0.42;
-  gradRect(s, x + 0.12, y + 0.1, w - 0.24, hh, CON.NAVY, CON.BLUE);
-  s.addShape("roundRect", { x: x + 0.12, y: y + 0.1, w: w - 0.24, h: hh, rectRadius: 0.09, fill: { color: CON.NAVY, transparency: 100 }, line: { color: CON.NAVY, width: 0.75 } });
-  txt(s, o.title ?? "", { x: x + 0.12, y: y + 0.1, w: w - 0.24, h: hh, fontSize: 14.5, bold: true, color: T.WHITE, align: "center", valign: "middle" });
-  const iy = y + 0.1 + hh + 0.12, ih = o.ih ?? 1.5;
-  if (o.img) s.addImage({ path: o.img, x: x + 0.15, y: iy, w: w - 0.3, h: ih, sizing: { type: "cover", w: w - 0.3, h: ih } });
-  else imgPlaceholder(s, { x: x + 0.15, y: iy, w: w - 0.3, h: ih, caption: o.imgCap ?? "配图（替换素材）" });
-  let ty = iy + ih + 0.12;
-  if (o.tags && o.tags.length) { tagPills(s, { x: x + 0.12, y: ty, w: w - 0.24, items: o.tags, fs: 10 }); ty += (o.tagH ?? 0.44); }
-  txt(s, o.parts ?? o.text ?? "", { x: x + 0.18, y: ty, w: w - 0.36, h: Math.max(y + h - ty - 0.1, 0.4), fontSize: o.fs ?? 10.5, color: CON.INK, valign: "top", lineSpacingMultiple: 1.22 });
+  card(s, x, y, w, h, { fill: T.WHITE, line: T.LINE, lw: 0.75, r: CLT.R });
+  const hh = o.hh ?? CLT.HEAD;
+  gradRect(s, x + CLT.HINSET, y + 0.1, w - 2 * CLT.HINSET, hh, CON.NAVY, CON.BLUE);
+  s.addShape("roundRect", { x: x + CLT.HINSET, y: y + 0.1, w: w - 2 * CLT.HINSET, h: hh, rectRadius: 0.09, fill: { color: CON.NAVY, transparency: 100 }, line: { color: CON.NAVY, width: 0.75 } });
+  txt(s, o.title ?? "", { x: x + CLT.HINSET, y: y + 0.1, w: w - 2 * CLT.HINSET, h: hh, fontSize: CLT.T - 0.5, bold: true, color: T.WHITE, align: "center", valign: "middle" });
+  const iy = y + 0.1 + hh + CLT.HINSET, ih = o.ih ?? 1.5;
+  if (o.img) s.addImage({ path: o.img, x: x + CLT.INSET, y: iy, w: w - 2 * CLT.INSET, h: ih, sizing: { type: "cover", w: w - 2 * CLT.INSET, h: ih } });
+  else imgPlaceholder(s, { x: x + CLT.INSET, y: iy, w: w - 2 * CLT.INSET, h: ih, caption: o.imgCap ?? "配图（替换素材）" });
+  let ty = iy + ih + CLT.HINSET;
+  if (o.tags && o.tags.length) { tagPills(s, { x: x + CLT.HINSET, y: ty, w: w - 2 * CLT.HINSET, items: o.tags, fs: 10 }); ty += (o.tagH ?? 0.44); }
+  txt(s, o.parts ?? o.text ?? "", { x: x + CLT.INSET, y: ty, w: w - 2 * CLT.INSET, h: Math.max(y + h - ty - 0.1, 0.4), fontSize: o.fs ?? CLT.B, color: CON.INK, valign: "top", lineSpacingMultiple: CLT.LH });
 }
 // 编号卡：白卡 + 渐变蓝编号方块 + 藏青粗体标题 + rich 正文（slide4 中列 01-04）
 function numCard(s, o = {}) {
   const { x, y, w, h } = o;
-  card(s, x, y, w, h, { fill: T.WHITE, line: lerpColor(CON.RED, "FFFFFF", 0.72), lw: 1, r: 0.08 });
-  const ns = 0.5, nx = x + 0.16, ny = y + 0.16;
+  card(s, x, y, w, h, { fill: T.WHITE, line: lerpColor(CON.RED, "FFFFFF", 0.72), lw: 1, r: CLT.R });
+  const ns = 0.5, nx = x + CLT.INSET, ny = y + CLT.INSET;
   gradRect(s, nx, ny, ns, ns, CON.BLUE2, CON.CYAN);
   txt(s, o.no ?? "01", { x: nx, y: ny, w: ns, h: ns, fontSize: 17, bold: true, fontFace: T.FL, color: T.WHITE, align: "center", valign: "middle" });
-  txt(s, o.title ?? "", { x: nx + ns + 0.14, y: ny - 0.02, w: w - ns - 0.5, h: ns + 0.04, fontSize: o.tfs ?? 15, bold: true, color: CON.NAVY, valign: "middle" });
-  txt(s, o.parts ?? o.text ?? "", { x: x + 0.2, y: ny + ns + 0.08, w: w - 0.4, h: Math.max(y + h - ny - ns - 0.2, 0.4), fontSize: o.fs ?? 10.5, color: CON.INK, valign: "top", lineSpacingMultiple: 1.22 });
+  txt(s, o.title ?? "", { x: nx + ns + 0.14, y: ny - 0.02, w: w - ns - 2 * CLT.INSET, h: ns + 0.04, fontSize: o.tfs ?? CLT.T, bold: true, color: CON.NAVY, valign: "middle" });
+  txt(s, o.parts ?? o.text ?? "", { x: x + CLT.INSET + 0.05, y: ny + ns + 0.08, w: w - 2 * CLT.INSET - 0.1, h: Math.max(y + h - ny - ns - 0.2, 0.4), fontSize: o.fs ?? CLT.B, color: CON.INK, valign: "top", lineSpacingMultiple: CLT.LH });
 }
 // 青绿片头卡：白卡 + 居中青绿芯片头 + 正文（slide4 右列「数据层响应」）
 function tealHeadCard(s, o = {}) {
   const { x, y, w, h } = o;
-  card(s, x, y, w, h, { fill: T.WHITE, line: T.LINE, lw: 0.75, r: 0.08 });
-  const cw = o.cw ?? w * 0.62, ch = o.ch ?? 0.4;
+  card(s, x, y, w, h, { fill: T.WHITE, line: T.LINE, lw: 0.75, r: CLT.R });
+  const cw = o.cw ?? w * 0.62, ch = o.ch ?? CLT.HEAD - 0.02;
   s.addShape("roundRect", { x: x + (w - cw) / 2, y: y + 0.12, w: cw, h: ch, rectRadius: 0.06, fill: { color: o.color ?? lerpColor(CON.TEAL, "FFFFFF", 0.62) } });
   txt(s, o.head ?? "", { x: x + (w - cw) / 2, y: y + 0.12, w: cw, h: ch, fontSize: 14.5, bold: true, color: o.tc ?? CON.TEALD, align: "center", valign: "middle" });
-  txt(s, o.parts ?? o.text ?? "", { x: x + 0.22, y: y + 0.12 + ch + 0.08, w: w - 0.44, h: Math.max(h - ch - 0.34, 0.4), fontSize: o.fs ?? 12, color: CON.INK, align: o.align ?? "center", valign: "middle", lineSpacingMultiple: 1.25 });
+  txt(s, o.parts ?? o.text ?? "", { x: x + CLT.INSET + 0.05, y: y + 0.12 + ch + 0.08, w: w - 2 * CLT.INSET - 0.1, h: Math.max(h - ch - 0.34, 0.4), fontSize: o.fs ?? CLT.B + 1, color: CON.INK, align: o.align ?? "center", valign: "middle", lineSpacingMultiple: CLT.LH + 0.03 });
 }
 // 角色卡：图标 + 彩色标题 + 正文（slide4 左列「管理人员/运维人员/平台使用者」）
 function personaCard(s, o = {}) {
   const { x, y, w, h } = o;
-  card(s, x, y, w, h, { fill: T.WHITE, line: T.LINE, lw: 0.75, r: 0.12 });
+  card(s, x, y, w, h, { fill: T.WHITE, line: T.LINE, lw: 0.75, r: CLT.R * 2 });
   if (o.icon) s.addImage({ path: o.icon, x: x + 0.14, y: y + 0.2, w: o.d ?? 0.9, h: o.d ?? 0.9 });
   else imgPlaceholder(s, { x: x + 0.14, y: y + 0.2, w: o.d ?? 0.9, h: o.d ?? 0.9, caption: "图标" });
-  txt(s, o.title ?? "", { x: x + (o.d ?? 0.9) + 0.28, y: y + 0.14, w: w - (o.d ?? 0.9) - 0.4, h: 0.4, fontSize: o.tfs ?? 16, bold: true, color: o.color ?? CON.BLUE });
-  txt(s, o.text ?? "", { x: x + (o.d ?? 0.9) + 0.28, y: y + 0.56, w: w - (o.d ?? 0.9) - 0.42, h: Math.max(h - 0.7, 0.4), fontSize: o.fs ?? 10.5, color: CON.INK, valign: "top", lineSpacingMultiple: 1.2 });
+  txt(s, o.title ?? "", { x: x + (o.d ?? 0.9) + 0.28, y: y + 0.14, w: w - (o.d ?? 0.9) - 0.4, h: 0.4, fontSize: o.tfs ?? CLT.T + 1, bold: true, color: o.color ?? CON.BLUE });
+  txt(s, o.text ?? "", { x: x + (o.d ?? 0.9) + 0.28, y: y + 0.56, w: w - (o.d ?? 0.9) - 0.42, h: Math.max(h - 0.7, 0.4), fontSize: o.fs ?? CLT.B, color: CON.INK, valign: "top", lineSpacingMultiple: CLT.LH - 0.02 });
 }
 // 三段式栏头：灰渐变圆角条 + 浅蓝箭头（slide4「业务场景→核心需求→系统响应」）
 function triColHeaders(s, o = {}) {
@@ -1048,9 +1079,9 @@ function triColHeaders(s, o = {}) {
 }
 // 虚线分区列 + 深蓝头条（slide5 可行性三区；返回内容区起点）
 function dashColumn(s, o = {}) {
-  s.addShape("roundRect", { x: o.x, y: o.y, w: o.w, h: o.h, rectRadius: 0.08, fill: { color: o.fill ?? T.WHITE, transparency: o.fty ?? 0 },
+  s.addShape("roundRect", { x: o.x, y: o.y, w: o.w, h: o.h, rectRadius: CLT.R, fill: { color: o.fill ?? T.WHITE, transparency: o.fty ?? 0 },
     line: { color: o.lc ?? CON.INK, width: 1.25, dashType: "dash" } });
-  const bh = o.bh ?? 0.42, bw = o.bw ?? o.w * 0.62;
+  const bh = o.bh ?? CLT.HEAD, bw = o.bw ?? o.w * 0.62;
   s.addShape("rect", { x: o.x + (o.w - bw) / 2, y: o.y + (o.by ?? 0.18), w: bw, h: bh, fill: { color: o.hc ?? CON.NAVYBAR } });
   txt(s, o.title ?? "", { x: o.x + (o.w - bw) / 2, y: o.y + (o.by ?? 0.18), w: bw, h: bh, fontSize: o.hfs ?? 15, bold: true, color: T.WHITE, align: "center", valign: "middle" });
   return { x: o.x + 0.18, y: o.y + (o.by ?? 0.18) + bh + 0.14, w: o.w - 0.36, h: o.h - bh - (o.by ?? 0.18) - 0.3 };
@@ -1075,7 +1106,7 @@ function bigGold(s, o = {}) {
 }
 // 渐变纵板：淡蓝底 + 加粗编号行 + 藏青圆角说明条（slide6「数据治理基础」）
 function gradPanel(s, o = {}) {
-  const { x, y, w, h } = o, ch = o.ch ?? 0.44, n = 12;
+  const { x, y, w, h } = o, ch = o.ch ?? CLT.HEAD + 0.02, n = 12;
   for (let i = 0; i < n; i++)
     s.addShape("rect", { x, y: y + (i * h) / n, w, h: h / n + 0.006, fill: { color: lerpColor(o.c1 ?? "D9E7FA", "FFFFFF", i / (n - 1)) } });
   const lines = o.lines ?? [], lh = (h - ch - 0.24) / Math.max(lines.length, 1);
@@ -1085,8 +1116,8 @@ function gradPanel(s, o = {}) {
 }
 // 能力盒：渐变蓝标题条 + 白色内卡 + 可选侧标（slide6「查询统计能力」）
 function capBox(s, o = {}) {
-  const { x, y, w, h } = o, th = o.th ?? 0.4;
-  s.addShape("roundRect", { x, y, w, h, rectRadius: 0.06, fill: { color: o.fill ?? "D6E4F5" } });
+  const { x, y, w, h } = o, th = o.th ?? CLT.HEAD - 0.02;
+  s.addShape("roundRect", { x, y, w, h, rectRadius: CLT.R, fill: { color: o.fill ?? "D6E4F5" } });
   gradRect(s, x + 0.14, y + 0.1, w - 0.28, th, CON.BLUE2, CON.BLUE);
   txt(s, o.title ?? "", { x: x + 0.14, y: y + 0.1, w: w - 0.28, h: th, fontSize: o.tfs ?? 15, bold: true, color: T.WHITE, align: "center", valign: "middle" });
   const iy = y + th + 0.2, ih = h - th - 0.34;
@@ -1159,9 +1190,9 @@ function flowTag(s, o = {}) {
 }
 // 淡蓝信息卡 + 深海军蓝标题（slide9 四联卡；返回内容区）
 function infoCard(s, o = {}) {
-  s.addShape("roundRect", { x: o.x, y: o.y, w: o.w, h: o.h, rectRadius: 0.1, fill: { color: o.fill ?? CON.BLUP } });
-  txt(s, o.title ?? "", { x: o.x + 0.2, y: o.y + 0.1, w: o.w - 0.4, h: 0.4, fontSize: o.tfs ?? 16, bold: true, color: o.tc ?? CON.DEEP, fontFace: o.tf ?? CF.zsong });
-  return { x: o.x + 0.2, y: o.y + 0.56, w: o.w - 0.4, h: o.h - 0.66 };
+  s.addShape("roundRect", { x: o.x, y: o.y, w: o.w, h: o.h, rectRadius: CLT.R + 0.04, fill: { color: o.fill ?? CON.BLUP } });
+  txt(s, o.title ?? "", { x: o.x + CLT.INSET + 0.05, y: o.y + 0.1, w: o.w - 2 * CLT.INSET - 0.1, h: 0.4, fontSize: o.tfs ?? CLT.T + 1, bold: true, color: o.tc ?? CON.DEEP, fontFace: o.tf ?? CF.zsong });
+  return { x: o.x + CLT.INSET + 0.05, y: o.y + 0.56, w: o.w - 2 * CLT.INSET - 0.1, h: o.h - 0.66 };
 }
 // 白描边小标签行，丨分隔（slide9「电力能耗丨空调能耗丨温湿度丨设备状态」）
 function tagRow(s, o = {}) {
@@ -1213,12 +1244,12 @@ function captionShot(s, o = {}) {
 }
 // 创新点卡：白圆角卡 + 插图位 + 中宋粗标题 + 居中说明（slide13 六宫格）
 function innovCard(s, o = {}) {
-  card(s, o.x, o.y, o.w, o.h, { fill: T.WHITE, line: T.LINE, lw: 0.75, r: 0.08 });
+  card(s, o.x, o.y, o.w, o.h, { fill: T.WHITE, line: T.LINE, lw: 0.75, r: CLT.R });
   const ih = o.ih ?? o.h - 1.05;
   if (o.img) s.addImage({ path: o.img, x: o.x + 0.15, y: o.y + 0.12, w: o.w - 0.3, h: ih, sizing: { type: "contain", w: o.w - 0.3, h: ih } });
   else imgPlaceholder(s, { x: o.x + 0.15, y: o.y + 0.12, w: o.w - 0.3, h: ih, caption: "示意插图（替换素材）" });
-  txt(s, o.title ?? "", { x: o.x + 0.1, y: o.y + ih + 0.16, w: o.w - 0.2, h: 0.36, fontSize: o.tfs ?? 15, bold: true, color: CON.INK, align: "center", fontFace: CF.zsong });
-  txt(s, o.text ?? "", { x: o.x + 0.18, y: o.y + ih + 0.54, w: o.w - 0.36, h: Math.max(o.h - ih - 0.62, 0.4), fontSize: o.fs ?? 10.5, color: CON.INK, align: "center", valign: "top", lineSpacingMultiple: 1.2 });
+  txt(s, o.title ?? "", { x: o.x + 0.1, y: o.y + ih + 0.16, w: o.w - 0.2, h: 0.36, fontSize: o.tfs ?? CLT.T, bold: true, color: CON.INK, align: "center", fontFace: CF.zsong });
+  txt(s, o.text ?? "", { x: o.x + CLT.INSET, y: o.y + ih + 0.54, w: o.w - 2 * CLT.INSET, h: Math.max(o.h - ih - 0.62, 0.4), fontSize: o.fs ?? CLT.B, color: CON.INK, align: "center", valign: "top", lineSpacingMultiple: CLT.LH - 0.02 });
 }
 // 团队引言带：半透明灰底 + 楷体加粗多行（slide15）
 function teamIntro(s, o = {}) {
@@ -1493,7 +1524,7 @@ module.exports = { T, DIA, lerpColor, CHART_BLUES, init, primary, card, txt, ric
   listGroup, headerList, orbitCircles, dualArrowLink, nodeLinkRow, hubSpokes, satelliteRing, cycleHub, curveArrow,
   pageHeader, pillChain, waveRibbon, iconNodeRow, petalHub, cylinderChain, picCard, descCard, headDescCol, gradStripRow, numBandRow, podium,
   arcFooter, navBarText, photoCover, tocFan, sectionGradient, bigStat, photoGrid, honorList, certPodium, spreadTags, kvProfileCard, laurelBadge, JX,
-  CON, CF, measure, gradRect, gradPill, bgContest, contestHeader, logoCorner, pageLead, sectionPill, checkPills, dashCallout,
+  CON, CF, CLT, measure, gradRect, gradPill, fillStack, gridAreas, bgContest, contestHeader, logoCorner, pageLead, sectionPill, checkPills, dashCallout,
   bottomBanner, bulbCallout, footPills, tagPills, painCard, numCard, tealHeadCard, personaCard, triColHeaders, dashColumn,
   metricPills, bigGold, gradPanel, capBox, hubRadial, archBanner, shotStrip, stepBox, softBox, flowTag, infoCard, tagRow,
   formulaLine, formulaCard, sideLabel, captionShot, innovCard, teamIntro, memberCard, flowBand, coverContest, closingContest, buildingIcon,
