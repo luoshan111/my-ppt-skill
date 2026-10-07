@@ -1042,8 +1042,9 @@ function numCard(s, o = {}) {
   const { x, y, w, h } = o;
   card(s, x, y, w, h, { fill: T.WHITE, line: lerpColor(CON.RED, "FFFFFF", 0.72), lw: 1, r: CLT.R });
   const ns = 0.5, nx = x + CLT.INSET, ny = y + CLT.INSET;
-  gradRect(s, nx, ny, ns, ns, CON.BLUE2, CON.CYAN);
-  txt(s, o.no ?? "01", { x: nx, y: ny, w: ns, h: ns, fontSize: 17, bold: true, fontFace: T.FL, color: T.WHITE, align: "center", valign: "middle" });
+  if (o.badge === "circle") numBadge(s, nx, ny, ns, o.no ?? "01");
+  else { gradRect(s, nx, ny, ns, ns, CON.BLUE2, CON.CYAN);
+    txt(s, o.no ?? "01", { x: nx, y: ny, w: ns, h: ns, fontSize: 17, bold: true, fontFace: T.FL, color: T.WHITE, align: "center", valign: "middle" }); }
   txt(s, o.title ?? "", { x: nx + ns + 0.14, y: ny - 0.02, w: w - ns - 2 * CLT.INSET, h: ns + 0.04, fontSize: o.tfs ?? CLT.T, bold: true, color: CON.NAVY, valign: "middle" });
   txt(s, o.parts ?? o.text ?? "", { x: x + CLT.INSET + 0.05, y: ny + ns + 0.08, w: w - 2 * CLT.INSET - 0.1, h: Math.max(y + h - ny - ns - 0.2, 0.4), fontSize: o.fs ?? CLT.B, color: CON.INK, valign: "top", lineSpacingMultiple: CLT.LH });
 }
@@ -1516,6 +1517,28 @@ function eraLineChart(s, o) {
   });
 }
 
+// ============ 创新组件族 v3（数字徽章/软卡片/栏头，来自用户 innovation-components-v3 SVG 源） ============
+// 色板：底 EAF5FC · 环 C9DDF0 · 主蓝 4A98D5（三变体通用的蓝白件）
+const NB = { fill: "EAF5FC", ring: "C9DDF0", num: "4A98D5" };
+// 数字圆徽章：numBadge(s, x, y, d, "01") —— 浅蓝圆 + 细环 + 粗体两位数字（数字占直径 ~47%）
+function numBadge(s, x, y, d, no, o = {}) {
+  s.addShape("ellipse", { x, y, w: d, h: d, fill: { color: o.fill ?? NB.fill }, line: { color: o.ring ?? NB.ring, width: o.rw ?? Math.max(d * 2.9, 0.75) } });
+  txt(s, String(no), { x, y: y - d * 0.01, w: d, h: d, fontSize: o.fs ?? d * 34, bold: true, fontFace: T.FL, color: o.color ?? NB.num, align: "center", valign: "middle", margin: 0 });
+}
+// 软卡片壳：白底圆角卡 + 浅蓝细环 + 可选头部区分隔线（返回头部下方内容区）
+function softCard(s, x, y, w, h, o = {}) {
+  const r = o.r ?? Math.min(Math.max(w * 0.02, 0.06), 0.14);
+  s.addShape("roundRect", { x, y, w, h, rectRadius: r, fill: { color: o.fill ?? T.WHITE }, line: { color: o.ring ?? NB.ring, width: o.lw ?? 1.8 } });
+  const headH = o.headH ?? Math.max(h * 0.17, 0.42);
+  if (o.divider !== false) _line(s, x + w * 0.038, y + headH, x + w - w * 0.038, y + headH, { color: o.ring ?? NB.ring, width: 1 });
+  return { x: x + (o.inset ?? CLT.INSET + 0.03), y: y + headH + (o.inset ?? CLT.INSET + 0.03), w: w - 2 * (o.inset ?? CLT.INSET + 0.03), h: h - headH - 2 * (o.inset ?? CLT.INSET + 0.03) };
+}
+// 栏头条：实心主蓝横条（可空白或带白粗体字）
+function colHeader(s, x, y, w, h, text, o = {}) {
+  s.addShape("rect", { x, y, w, h, fill: { color: o.fill ?? NB.num } });
+  if (text) txt(s, text, { x, y, w, h, fontSize: o.fs ?? CLT.T - 1, bold: true, color: T.WHITE, align: "center", valign: "middle" });
+}
+
 module.exports = { T, DIA, lerpColor, CHART_BLUES, init, primary, card, txt, rich, logo, pageNo,
   bottomBands, waveFooter, coverDefense, tocDefense, partDivider, tabNav, pageTitle,
   introBand, navyTag, chipCard, calloutBand, calloutBandRich, sectionSquare,
@@ -1529,4 +1552,4 @@ module.exports = { T, DIA, lerpColor, CHART_BLUES, init, primary, card, txt, ric
   metricPills, bigGold, gradPanel, capBox, hubRadial, archBanner, shotStrip, stepBox, softBox, flowTag, infoCard, tagRow,
   formulaLine, formulaCard, sideLabel, captionShot, innovCard, teamIntro, memberCard, flowBand, coverContest, closingContest, buildingIcon,
   glyph, GLYPHS, elbow, forkArrow, miniTable, badgeCheck, gradRectMS, iconBarChart, demoScatter, demoPartition, iTreeDraw,
-  sqlBlock, chatBubble, comparePair, cycleFlow, vText, eraLineChart };
+  sqlBlock, chatBubble, comparePair, cycleFlow, vText, eraLineChart, NB, numBadge, softCard, colHeader };

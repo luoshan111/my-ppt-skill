@@ -279,6 +279,15 @@
 ### 共用
 `rich(parts)` 关键词高亮富文本（必须配 fix_ppr.py）· `table(s,rows,o)` · `chartOpts()` 图表蓝系 · `statNumber` 红/蓝大数字 · `imgPlaceholder` 图片占位 · `pageNo` · `logo` · `card/txt` 基元
 
+### 创新组件族 v3（蓝白通用，来自用户 innovation-components-v3 SVG 源，参考 assets/reference/innovation-v3/）
+三变体通用的浅蓝件，色板 `S.NB`：底 `EAF5FC` · 环 `C9DDF0` · 主蓝 `4A98D5`。
+| 组件 | 参数 | 说明 |
+|---|---|---|
+| `numBadge(s,…)` | x, y, d, no, {color,fill,ring,fs} | 数字圆徽章：浅蓝圆+细环+Arial 粗体两位数字（数字≈直径 47%）；步骤/清单编号通用 |
+| `softCard(s,…)` | x, y, w, h, {headH, divider, r, inset} | 软卡片壳：白底圆角 + C9DDF0 细环 + 头部分隔线；返回线下内容区（要点卡/清单卡外壳） |
+| `colHeader(s,…)` | x, y, w, h, text?, {fill,fs} | 实心主蓝栏头条（可空白） |
+| `numCard` 增参 | badge:"circle" | 编号卡的渐变方块换为圆徽章，两种可混排 |
+
 ## 4. 版式骨架（典型内容页）
 
 - **答辩·研究背景页**：tabNav → pageTitle(1.1) → introBand（现状数据）→ 左列 navyTag+卡片 ×2 / 右列图片占位 → calloutBand（页尾小结，可选）
